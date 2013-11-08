@@ -1,0 +1,20 @@
+{
+  "name": "fmm-boussole",
+  "description": "Grunt plugin to manage FMM compass indicators",
+  "version": "0.1.0",
+  "author": {
+    "name": "Dominic Mercier",
+    "email": "dominic@dominic-mercier.com",
+    "url": "http://www.dominic-mercier.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ebhoren/fmm-boussole.git"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "dependencies": {
+    "easyimage": "~0.1.3"
+  }
+}
