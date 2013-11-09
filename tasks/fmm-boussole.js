@@ -5,7 +5,6 @@ module.exports = function(grunt) {
   var path        = require('path'),
       easyimage   = require('easyimage');
 
-
   return grunt.registerMultiTask('fmm-boussole', 'Fort McMoney compass indicator.', function() {
 
     var done        = this.async();
@@ -37,26 +36,42 @@ module.exports = function(grunt) {
         copyImage = function( filepath, dest, callback ){
           grunt.file.copy( filepath, dest );
           callback( dest );
+        },
+        copyAtlas = function( filepath, dest, callback ){
+          grunt.file.copy( filepath, dest );
+          callback();
         };
 
+
+
+
+    // create a new files array because grunt's one really sucks!!!
+    var files = [];
+    this.data.src.forEach(function( file ){ files.push({src: file.src, atlas: file.atlas}); });
+
+
+
     // process each files
-    grunt.util.async.forEach(this.data.src, function( file, next ){
+    grunt.util.async.forEachSeries(files, function( file, next ){
 
       grunt.log.writeln('Create compass indicator:', options.output + file.src);
 
       var spritesheet = file.src,
           src         = path.dirname(spritesheet),
           extension   = path.extname(spritesheet),
-          filename    = options.output + path.dirname(spritesheet) + '/' + path.basename(spritesheet, extension) + ( options.retina === true ? '@2x' : '' ) + extension,
-          copyAtlas   = function(){ grunt.file.copy( file.atlas, options.output + file.atlas, next ); };
+          filename    = options.output + path.dirname(spritesheet) + '/' + path.basename(spritesheet, extension) + ( options.retina === true ? '@2x' : '' ) + extension;
 
-      if( options.retina === true ) copyImage( spritesheet, filename, copyAtlas );
-      else getImageSize( spritesheet, function( info ){ resizeImage( spritesheet, filename, info.width * 0.5, info.height * 0.5, copyAtlas ); });
+      if( options.retina === true ) copyImage( spritesheet, filename, function(){ copyAtlas( file.atlas, options.output + file.atlas, next); });
+      else
+      {
+        getImageSize( spritesheet, function( info ){ 
+          resizeImage( spritesheet, filename, info.width * 0.5, info.height * 0.5, function(){
+            copyAtlas( file.atlas, options.output + file.atlas, next);
+          });
+        });
+      };
 
     }, done);
-
-
-
 
   });
 };
